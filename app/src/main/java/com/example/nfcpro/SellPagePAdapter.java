@@ -1,40 +1,41 @@
 package com.example.nfcpro;
 
-
 import android.content.Context;
-import android.graphics.Color;
-import android.os.Debug;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SellPagePAdapter extends RecyclerView.Adapter<SellPagePAdapter.ProductViewHolder> {
     private List<Product> products;
     private Context context;
+    private Map<Integer, Integer> selectionCount; // Maps product position to selection count
 
     public SellPagePAdapter(Context context, List<Product> products) {
         this.context = context;
         this.products = products;
+        this.selectionCount = new HashMap<>();
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
         ImageView productImage;
         TextView productTitle;
         TextView productPrice;
+        TextView selectionCountView;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.productImage);
             productTitle = itemView.findViewById(R.id.productTitle);
             productPrice = itemView.findViewById(R.id.productPrice);
+            selectionCountView = itemView.findViewById(R.id.selectionCount);
         }
     }
 
@@ -52,25 +53,44 @@ public class SellPagePAdapter extends RecyclerView.Adapter<SellPagePAdapter.Prod
         holder.productTitle.setText(product.getTitle());
         holder.productPrice.setText(product.getPrice());
         holder.productImage.setImageResource(product.getImageUrl());
-//        // 이미지 로딩 (Glide 사용)
-//        Glide.with(context)
-//                .load(product.getImageUrl())
-//                .placeholder(R.drawable.placeholder) // 플레이스홀더 이미지
-//                .error(R.drawable.error) // 에러 이미지
-//                .into(holder.productImage);
 
-        // 아이템 클릭 리스너
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 상품 클릭 처리
-                v.setBackgroundColor(Color.BLUE);
-            }
+        // Item click listener
+        holder.itemView.setOnClickListener(v -> {
+            incrementSelection(position);
+            notifyItemChanged(position);
+
+            // Show toast with updated count
+            int newCount = selectionCount.get(position);
+            Toast.makeText(context,
+                    product.getTitle() + " selected: " + newCount + " times",
+                    Toast.LENGTH_SHORT).show();
         });
     }
 
     @Override
     public int getItemCount() {
         return products.size();
+    }
+
+    // Method to increment selection count
+    private void incrementSelection(int position) {
+        int currentCount = selectionCount.getOrDefault(position, 0);
+        selectionCount.put(position, currentCount + 1);
+    }
+
+    // Method to get total selections for a product
+    public int getSelectionCount(int position) {
+        return selectionCount.getOrDefault(position, 0);
+    }
+
+    // Method to get all selections
+    public Map<Integer, Integer> getAllSelections() {
+        return new HashMap<>(selectionCount);
+    }
+
+    // Method to clear selections
+    public void clearSelections() {
+        selectionCount.clear();
+        notifyDataSetChanged();
     }
 }

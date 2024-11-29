@@ -6,15 +6,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.io.Serializable;
 
 public class SellingPage extends AppCompatActivity {
-
     private RecyclerView recyclerView2;
     private SellPagePAdapter adapter;
     private List<Product> products;
@@ -24,37 +23,64 @@ public class SellingPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sellingpage);
 
-        // RecyclerView 초기화
         recyclerView2 = findViewById(R.id.recyclerView);
         recyclerView2.setLayoutManager(new GridLayoutManager(this, 2));
 
-        // 상품 데이터 초기화
         initializeProducts();
 
-        // 어댑터 설정
         adapter = new SellPagePAdapter(this, products);
         recyclerView2.setAdapter(adapter);
 
-        // 결제 버튼 설정
         Button priceButton = findViewById(R.id.priceButton);
         priceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 결제 처리
+                processCheckout();
             }
         });
     }
 
+    private void processCheckout() {
+        Map<Integer, Integer> selections = adapter.getAllSelections();
+        ArrayList<SelectedProduct> selectedProducts = new ArrayList<>();
+        int totalAmount = 0;
+
+        // 선택된 상품들의 정보 수집
+        for (Map.Entry<Integer, Integer> entry : selections.entrySet()) {
+            int position = entry.getKey();
+            int quantity = entry.getValue();
+
+            if (quantity > 0) {
+                Product product = products.get(position);
+                String priceString = product.getPrice().replaceAll("[^0-9]", "");
+                int price = Integer.parseInt(priceString);
+                totalAmount += price * quantity;
+
+                selectedProducts.add(new SelectedProduct(
+                        product.getTitle(),
+                        product.getPrice(),
+                        quantity,
+                        product.getImageUrl()
+                ));
+            }
+        }
+
+        // 결제 페이지로 이동
+        Intent intent = new Intent(SellingPage.this, sellandbuy.class);
+        intent.putExtra("selectedProducts", selectedProducts);
+        intent.putExtra("totalAmount", totalAmount);
+        startActivity(intent);
+    }
+
     private void initializeProducts() {
         products = new ArrayList<>();
-        products.add(new Product("상품1", "10,000원", R.drawable._060));
-        products.add(new Product("상품2", "20,000원", R.drawable._060ti));
-        products.add(new Product("상품1", "10,000원", R.drawable._060));
-        products.add(new Product("상품2", "20,000원", R.drawable._060ti));
-        products.add(new Product("상품1", "10,000원", R.drawable._060));
-        products.add(new Product("상품2", "20,000원", R.drawable._060ti));
-        products.add(new Product("상품1", "10,000원", R.drawable._060));
-        products.add(new Product("상품2", "20,000원", R.drawable._060ti));
-        // 더 많은 상품 추가
+        products.add(new Product("상품1", "10000원", R.drawable._060));
+        products.add(new Product("상품2", "20000원", R.drawable._060ti));
+        products.add(new Product("상품1", "10000원", R.drawable._060));
+        products.add(new Product("상품2", "20000원", R.drawable._060ti));
+        products.add(new Product("상품1", "10000원", R.drawable._060));
+        products.add(new Product("상품2", "20000원", R.drawable._060ti));
+        products.add(new Product("상품1", "10000원", R.drawable._060));
+        products.add(new Product("상품2", "20000원", R.drawable._060ti));
     }
 }
