@@ -32,4 +32,8 @@ public class SelectedProduct implements Serializable {
     public int getImageResource() {
         return imageResource;
     }
+
+    public void setQuantity(int Quantity) {
+        this.quantity = Quantity;
+    }
 }

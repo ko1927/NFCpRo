@@ -12,18 +12,19 @@ import java.util.ArrayList;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
     private ArrayList<SelectedProduct> selectedProducts;
-    private OnItemRemovedListener onItemRemovedListener;
+    private OnCartUpdateListener onCartUpdateListener;
 
-    public interface OnItemRemovedListener {
+    public interface OnCartUpdateListener {
         void onItemRemoved(SelectedProduct product, int position);
+        void onQuantityChanged(int position, int newQuantity);
     }
 
     public CartAdapter(ArrayList<SelectedProduct> selectedProducts) {
         this.selectedProducts = selectedProducts;
     }
 
-    public void setOnItemRemovedListener(OnItemRemovedListener listener) {
-        this.onItemRemovedListener = listener;
+    public void setOnCartUpdateListener(OnCartUpdateListener listener) {
+        this.onCartUpdateListener = listener;
     }
 
     public static class CartViewHolder extends RecyclerView.ViewHolder {
@@ -32,6 +33,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         TextView productPrice;
         TextView quantityText;
         ImageButton deleteButton;
+        ImageButton decreaseButton;
+        ImageButton increaseButton;
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -40,6 +43,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             productPrice = itemView.findViewById(R.id.productPrice);
             quantityText = itemView.findViewById(R.id.quantityText);
             deleteButton = itemView.findViewById(R.id.deleteButton);
+            decreaseButton = itemView.findViewById(R.id.decreaseButton);
+            increaseButton = itemView.findViewById(R.id.increaseButton);
         }
     }
 
@@ -60,10 +65,33 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.productPrice.setText(product.getPrice());
         holder.quantityText.setText(String.valueOf(product.getQuantity()));
 
+        // 삭제 버튼
         holder.deleteButton.setOnClickListener(v -> {
             int pos = holder.getAdapterPosition();
+            int currentQuantity = product.getQuantity();
+            updateQuantity(pos,0);
             if (pos != RecyclerView.NO_POSITION) {
                 removeItem(pos);
+            }
+        });
+
+        // 수량 감소 버튼
+        holder.decreaseButton.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION) {
+                int currentQuantity = product.getQuantity();
+                if (currentQuantity > 0) {
+                    updateQuantity(pos, currentQuantity - 1);
+                }
+            }
+        });
+
+        // 수량 증가 버튼
+        holder.increaseButton.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION) {
+                int currentQuantity = product.getQuantity();
+                updateQuantity(pos, currentQuantity + 1);
             }
         });
     }
@@ -74,12 +102,22 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     }
 
     private void removeItem(int position) {
-        if (onItemRemovedListener != null) {
-            onItemRemovedListener.onItemRemoved(selectedProducts.get(position), position);
+        if (onCartUpdateListener != null) {
+            onCartUpdateListener.onItemRemoved(selectedProducts.get(position), position);
         }
         selectedProducts.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, selectedProducts.size());
+    }
+
+    private void updateQuantity(int position, int newQuantity) {
+        SelectedProduct product = selectedProducts.get(position);
+        product.setQuantity(newQuantity);
+        notifyItemChanged(position);
+
+        if (onCartUpdateListener != null) {
+            onCartUpdateListener.onQuantityChanged(position, newQuantity);
+        }
     }
 
     public ArrayList<SelectedProduct> getSelectedProducts() {
