@@ -79,8 +79,8 @@ public class sellandbuy extends AppCompatActivity implements CartAdapter.OnCartU
 
     private void processPayment() {
         if (totalAmount > 0) {
-            // TODO: 실제 결제 처리 구현
-            // 결제 API 호출 등
+            PaymentHandler paymentHandler = new PaymentHandler(this);
+            paymentHandler.startPaymentProcess();
         }
     }
 }
