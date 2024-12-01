@@ -14,6 +14,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // 초기화 코드 (한 번만 실행하고 주석처리할 것)
+//        com.example.nfcpro.util.FirebaseInitializer.initializeDatabase();
 
         new Handler().postDelayed(new Runnable() {
             @Override
