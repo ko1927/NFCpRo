@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "485518236663",
+    "firebase_url": "https://nfctogo-f4da1-default-rtdb.firebaseio.com",
+    "project_id": "nfctogo-f4da1",
+    "storage_bucket": "nfctogo-f4da1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485518236663:android:7eb2717ea52d18543b2cf2",
+        "android_client_info": {
+          "package_name": "com.example.nfcpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5DDcHT34Y34k3BpoQZX99wWI0ICFap3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
