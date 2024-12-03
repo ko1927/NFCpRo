@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="마이페이지"
+        android:textColor="#000000"
+        android:textSize="28dp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/round_image"
+        android:layout_width="148dp"
+        android:layout_height="122dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/circle_background"
+        android:clipToOutline="true"
+        android:outlineProvider="background"
+        android:scaleType="centerCrop"
+        android:src="@drawable/cabbage" />
+
+
+    <!-- 부스 이름은 고정된 TextView -->
+    <TextView
+        android:id="@+id/boothNameText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:background="#F0F0F0"
+        android:gravity="start|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="부스 이름"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- 부스 코드도 고정된 TextView -->
+    <TextView
+        android:id="@+id/boothCodeText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:background="#F0F0F0"
+        android:gravity="start|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="코드"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- 부스 위치도 고정된 TextView -->
+    <TextView
+        android:id="@+id/boothLocationText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:background="#F0F0F0"
+        android:gravity="start|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="위치"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- 오른쪽 텍스트는 EditText로 사용자 입력을 받음 -->
+    <EditText
+        android:id="@+id/rightTextInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="여기에 텍스트 입력"
+        android:inputType="text" />
+
+    <!-- QR 코드 (비워두기) -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+        <!-- QR 코드 관련 콘텐츠가 삽입될 자리 -->
+    </FrameLayout>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#bbbbbb"
+        android:title="앱 제목"
+        android:titleTextColor="#FFFFFF"
+        android:elevation="4dp" />
+
+</LinearLayout>
