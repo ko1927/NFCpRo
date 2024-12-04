@@ -11,44 +11,35 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingViewHolder> {
+public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.ViewHolder> {
 
-    private List<RankingItem> rankingList;
+    private List<RankingItem> rankingList = new ArrayList<>();
 
-    public RankingAdapter() {
-        this.rankingList = new ArrayList<>();
-    }
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView rankingNumber, boothName, salesAmount;
 
-    public static class RankingViewHolder extends RecyclerView.ViewHolder {
-        private final TextView rankingNumber;
-        private final TextView boothName;
-        private final TextView salesAmount;
-
-        public RankingViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
             rankingNumber = itemView.findViewById(R.id.ranking_number);
             boothName = itemView.findViewById(R.id.booth_name);
             salesAmount = itemView.findViewById(R.id.sales_amount);
         }
-
-        public void bind(RankingItem item) {
-            rankingNumber.setText(String.valueOf(item.getRank()));
-            boothName.setText(item.getBoothName());
-            salesAmount.setText(item.getSalesAmount());
-        }
     }
 
     @NonNull
     @Override
-    public RankingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_lamkimg, parent, false);
-        return new RankingViewHolder(view);
+                .inflate(R.layout.ranking_item, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RankingViewHolder holder, int position) {
-        holder.bind(rankingList.get(position));
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        RankingItem item = rankingList.get(position);
+        holder.rankingNumber.setText(String.valueOf(item.getRank()));
+        holder.boothName.setText(item.getBoothName());
+        holder.salesAmount.setText(item.getSalesAmount());
     }
 
     @Override
@@ -56,14 +47,8 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingV
         return rankingList.size();
     }
 
-    public void submitList(List<RankingItem> newList) {
-        rankingList = new ArrayList<>();
-        // 4등 이후의 데이터만 필터링
-        for (RankingItem item : newList) {
-            if (item.getRank() > 3) {
-                rankingList.add(item);
-            }
-        }
+    public void setRankingList(List<RankingItem> list) {
+        this.rankingList = list;
         notifyDataSetChanged();
     }
 }

@@ -11,7 +11,6 @@ public class RankingItem {
         this.salesAmount = salesAmount;
     }
 
-    // Getters
     public int getRank() { return rank; }
     public String getBoothName() { return boothName; }
     public String getSalesAmount() { return salesAmount; }
