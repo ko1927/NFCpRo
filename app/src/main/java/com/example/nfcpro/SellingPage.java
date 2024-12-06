@@ -5,15 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -29,7 +24,7 @@ public class SellingPage extends AppCompatActivity {
         setContentView(R.layout.sellingpage);
 
         // Initialize BottomNavigationView
-        bta = findViewById(R.id.bottomNavigation); // Make sure to add this ID in your layout
+        bta = findViewById(R.id._userbottomNavigation); // Make sure to add this ID in your layout
 
 //         Set default fragment
         loadFragment(new sellpage(), "one");
@@ -69,7 +64,7 @@ public class SellingPage extends AppCompatActivity {
         if (fragment != null) {
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction ft = manager.beginTransaction();
-            ft.replace(R.id.fragmentContainerView, fragment, tag);
+            ft.replace(R.id._userfragmentContainerView, fragment, tag);
             ft.commitAllowingStateLoss();
             return true;
         }
