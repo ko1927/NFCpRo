@@ -22,7 +22,7 @@ public class inBooth extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_listofpay, container, false);
+        View view = inflater.inflate(R.layout.fragment_in_booth, container, false);
         initializeViews(view);
         return view;
     }

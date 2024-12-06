@@ -70,7 +70,7 @@
     <!-- 오른쪽 텍스트는 EditText로 사용자 입력을 받음 -->
     <EditText
         android:id="@+id/rightTextInput"
-        android:layout_width="wrap_content"
+        android:layout_width="378dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:hint="여기에 텍스트 입력"
@@ -83,14 +83,5 @@
         android:layout_marginBottom="20dp">
         <!-- QR 코드 관련 콘텐츠가 삽입될 자리 -->
     </FrameLayout>
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#bbbbbb"
-        android:title="앱 제목"
-        android:titleTextColor="#FFFFFF"
-        android:elevation="4dp" />
 
 </LinearLayout>
