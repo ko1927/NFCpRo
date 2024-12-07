@@ -1,5 +1,6 @@
 package com.example.nfcpro;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,18 +9,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
     private ArrayList<SelectedProduct> selectedProducts;
     private OnCartUpdateListener onCartUpdateListener;
+    private Context context;
 
     public interface OnCartUpdateListener {
         void onItemRemoved(SelectedProduct product, int position);
         void onQuantityChanged(int position, int newQuantity);
     }
 
-    public CartAdapter(ArrayList<SelectedProduct> selectedProducts) {
+    public CartAdapter(Context context, ArrayList<SelectedProduct> selectedProducts) {
+        this.context = context;
         this.selectedProducts = selectedProducts;
     }
 
@@ -60,7 +64,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
         SelectedProduct product = selectedProducts.get(position);
 
-        holder.productImage.setImageResource(product.getImageResource());
+        // Glide를 사용하여 이미지 로드
+        Glide.with(context)
+                .load(product.getImageUrl())  // getImageUrl()로 변경
+                .placeholder(R.drawable.placehold)  // 로딩 중 표시할 이미지
+                .error(R.drawable.placehold)  // 로드 실패시 표시할 이미지
+                .into(holder.productImage);
+
         holder.productTitle.setText(product.getTitle());
         holder.productPrice.setText(product.getPrice());
         holder.quantityText.setText(String.valueOf(product.getQuantity()));
@@ -68,9 +78,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         // 삭제 버튼
         holder.deleteButton.setOnClickListener(v -> {
             int pos = holder.getAdapterPosition();
-            int currentQuantity = product.getQuantity();
-            updateQuantity(pos,0);
             if (pos != RecyclerView.NO_POSITION) {
+                updateQuantity(pos, 0);
                 removeItem(pos);
             }
         });

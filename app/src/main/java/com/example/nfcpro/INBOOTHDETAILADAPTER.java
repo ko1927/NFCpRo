@@ -10,6 +10,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +56,13 @@ public class INBOOTHDETAILADAPTER extends RecyclerView.Adapter<com.example.nfcpr
         Product product = products.get(position);
         holder.productTitle.setText(product.getTitle());
         holder.productPrice.setText(product.getPrice());
-        holder.productImage.setImageResource(product.getImageUrl());
+//        holder.productImage.setImageResource(product.getImageUrl());
 
+        Glide.with(context)
+                .load(product.getImageUrl())
+                .placeholder(R.drawable.placehold) // 로딩 중 표시할 이미지
+                .error(R.drawable._060) // 로드 실패시 표시할 이미지
+                .into(holder.productImage);
 //            // Item click listener
 //            holder.itemView.setOnClickListener(v -> {
 //                incrementSelection(position);

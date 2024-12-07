@@ -29,7 +29,9 @@ public class sellandbuy extends AppCompatActivity implements CartAdapter.OnCartU
         // RecyclerView 설정
         RecyclerView cartRecyclerView = findViewById(R.id.cartRecyclerView);
         cartRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        cartAdapter = new CartAdapter(selectedProducts);
+
+        // CartAdapter 초기화 시 Context 전달
+        cartAdapter = new CartAdapter(this, selectedProducts);  // 여기만 수정
         cartAdapter.setOnCartUpdateListener(this);
         cartRecyclerView.setAdapter(cartAdapter);
 

@@ -34,13 +34,13 @@ public class InBoothDetail extends AppCompatActivity {
 
     private void initializeProducts() {
         products = new ArrayList<>();
-        products.add(new Product("상품1", "10000원", R.drawable._060));
-        products.add(new Product("상품2", "20000원", R.drawable._060ti));
-        products.add(new Product("상품1", "10000원", R.drawable._060));
-        products.add(new Product("상품2", "20000원", R.drawable._060ti));
-        products.add(new Product("상품1", "10000원", R.drawable._060));
-        products.add(new Product("상품2", "20000원", R.drawable._060ti));
-        products.add(new Product("상품1", "10000원", R.drawable._060));
-        products.add(new Product("상품2", "20000원", R.drawable._060ti));
+//        products.add(new Product("상품1", "10000원", R.drawable._060));
+//        products.add(new Product("상품2", "20000원", R.drawable._060ti));
+//        products.add(new Product("상품1", "10000원", R.drawable._060));
+//        products.add(new Product("상품2", "20000원", R.drawable._060ti));
+//        products.add(new Product("상품1", "10000원", R.drawable._060));
+//        products.add(new Product("상품2", "20000원", R.drawable._060ti));
+//        products.add(new Product("상품1", "10000원", R.drawable._060));
+//        products.add(new Product("상품2", "20000원", R.drawable._060ti));
     }
 }

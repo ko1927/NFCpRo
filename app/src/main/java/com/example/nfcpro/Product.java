@@ -3,9 +3,9 @@ package com.example.nfcpro;
 public class Product {
     private String title;
     private String price;
-    private int imageUrl;
+    private String imageUrl;
 
-    public Product(String title, String price, int imageUrl) {
+    public Product(String title, String price, String imageUrl) {
         this.title = title;
         this.price = price;
         this.imageUrl = imageUrl;
@@ -14,5 +14,5 @@ public class Product {
     // Getters
     public String getTitle() { return title; }
     public String getPrice() { return price; }
-    public int getImageUrl() { return imageUrl; }
+    public String getImageUrl() { return imageUrl; }
 }

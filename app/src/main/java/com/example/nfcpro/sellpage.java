@@ -7,31 +7,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.nfcpro.SessionManager;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
+import com.google.firebase.database.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class sellpage extends Fragment {
+public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongClickListener {
     private RecyclerView recyclerView2;
     private SellPagePAdapter adapter;
     private List<Product> products;
+    private List<String> productIds;
     private SessionManager sessionManager;
     private DatabaseReference databaseRef;
     private String boothId;
+    private FloatingActionButton addProductButton;
+    private ValueEventListener productsListener;
+    private boolean isDataLoaded = false;
 
     public sellpage() {
         // Required empty public constructor
@@ -41,18 +39,17 @@ public class sellpage extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sessionManager = new SessionManager(requireContext());
-
-        // Firebase 초기화
         databaseRef = FirebaseDatabase.getInstance().getReference().child("nfcpro");
 
-        // 세션에서 부스 정보 가져오기
         SessionManager.SessionData sessionData = sessionManager.getSession();
         if (sessionData != null) {
             boothId = sessionData.getBoothId();
         } else {
-            // 세션 정보가 없으면 로그인 페이지로 이동
             redirectToLogin();
         }
+
+        products = new ArrayList<>();
+        productIds = new ArrayList<>();
     }
 
     @Override
@@ -63,76 +60,135 @@ public class sellpage extends Fragment {
         recyclerView2 = view.findViewById(R.id.recyclerView);
         recyclerView2.setLayoutManager(new GridLayoutManager(getActivity(), 2));
 
-        products = new ArrayList<>();
         adapter = new SellPagePAdapter(getActivity(), products);
+        adapter.setOnItemLongClickListener(this);
         recyclerView2.setAdapter(adapter);
+
+        addProductButton = view.findViewById(R.id.addProductButton);
+        addProductButton.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                Intent intent = new Intent(getActivity(), ProductManageActivity.class);
+                startActivity(intent);
+            }
+        });
 
         Button priceButton = view.findViewById(R.id.priceButton);
         priceButton.setOnClickListener(v -> processCheckout());
 
-        // Firebase에서 상품 정보 로드
-        loadProducts();
+        if (!isDataLoaded) {
+            loadProducts();
+        }
 
         return view;
     }
 
     private void loadProducts() {
-        if (boothId == null) return;
+        if (boothId == null || !isAdded()) return;
 
-        // 부스의 상품 목록 가져오기
-        databaseRef.child("booth_products").child(boothId).addListenerForSingleValueEvent(new ValueEventListener() {
+        if (productsListener != null) {
+            databaseRef.child("booth_products").child(boothId).removeEventListener(productsListener);
+        }
+
+        productsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot boothProductsSnapshot) {
+                if (!isAdded()) return;  // Fragment가 분리되었는지 확인
+
                 products.clear();
+                productIds.clear();
 
                 for (DataSnapshot productIdSnapshot : boothProductsSnapshot.getChildren()) {
                     String productId = productIdSnapshot.getKey();
-
-                    // 각 상품의 상세 정보 가져오기
-                    databaseRef.child("products").child(productId)
-                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot productSnapshot) {
-                                    if (productSnapshot.exists() &&
-                                            Boolean.TRUE.equals(productSnapshot.child("isAvailable").getValue(Boolean.class))) {
-
-                                        String name = productSnapshot.child("name").getValue(String.class);
-                                        Long price = productSnapshot.child("price").getValue(Long.class);
-                                        String imageUrl = productSnapshot.child("imageUrl").getValue(String.class);
-
-                                        // 이미지 리소스 ID 가져오기
-                                        int imageResId = getResources().getIdentifier(
-                                                imageUrl,
-                                                "drawable",
-                                                requireContext().getPackageName()
-                                        );
-
-                                        products.add(new Product(
-                                                name,
-                                                price + "원",
-                                                imageResId
-                                        ));
-
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                    showError("상품 정보를 불러오는데 실패했습니다");
-                                }
-                            });
+                    loadProductDetails(productId);
                 }
+                isDataLoaded = true;
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                showError("상품 목록을 불러오는데 실패했습니다");
+                if (isAdded()) {
+                    showError("상품 목록을 불러오는데 실패했습니다");
+                }
             }
-        });
+        };
+
+        databaseRef.child("booth_products").child(boothId).addValueEventListener(productsListener);
     }
 
+    private void loadProductDetails(String productId) {
+        if (!isAdded()) return;
+
+        databaseRef.child("products").child(productId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot productSnapshot) {
+                        if (!isAdded()) return;
+
+                        try {
+                            if (productSnapshot.exists() &&
+                                    Boolean.TRUE.equals(productSnapshot.child("isAvailable").getValue(Boolean.class))) {
+
+                                String name = productSnapshot.child("name").getValue(String.class);
+                                Long price = productSnapshot.child("price").getValue(Long.class);
+                                String imageUrl = productSnapshot.child("imageUrl").getValue(String.class);
+
+                                if (getContext() != null) {
+                                    products.add(new Product(
+                                            name,
+                                            price + "원",
+                                            imageUrl  // URL 직접 사용
+                                    ));
+                                    productIds.add(productId);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+                        } catch (Exception e) {
+                            if (isAdded()) {
+                                showError("상품 정보 처리 중 오류가 발생했습니다");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        if (isAdded()) {
+                            showError("상품 정보를 불러오는데 실패했습니다");
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (productsListener != null && boothId != null) {
+            databaseRef.child("booth_products").child(boothId).removeEventListener(productsListener);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isAdded()) {
+            loadProducts();
+        }
+    }
+
+    @Override
+    public void onItemLongClick(int position) {
+        if (!isAdded() || getActivity() == null) return;
+
+        if (position < productIds.size()) {
+            String productId = productIds.get(position);
+            Intent intent = new Intent(getActivity(), ProductManageActivity.class);
+            intent.putExtra("PRODUCT_ID", productId);
+            startActivity(intent);
+        }
+    }
+
+    // 나머지 메소드들은 isAdded() 체크 추가...
     private void processCheckout() {
+        if (!isAdded()) return;
         Map<Integer, Integer> selections = adapter.getAllSelections();
         ArrayList<SelectedProduct> selectedProducts = new ArrayList<>();
         int totalAmount = 0;
@@ -169,6 +225,7 @@ public class sellpage extends Fragment {
     }
 
     private void redirectToLogin() {
+        if (!isAdded() || getActivity() == null) return;
         Intent intent = new Intent(getActivity(), LoginAdmin.class);
         startActivity(intent);
         if (getActivity() != null) {
@@ -177,7 +234,7 @@ public class sellpage extends Fragment {
     }
 
     private void showError(String message) {
-        if (getContext() != null) {
+        if (isAdded() && getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         }
     }

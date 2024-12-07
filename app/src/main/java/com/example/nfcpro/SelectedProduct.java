@@ -2,18 +2,17 @@ package com.example.nfcpro;
 
 import java.io.Serializable;
 
-// 선택된 상품 정보를 담을 클래스
 public class SelectedProduct implements Serializable {
     private String title;
     private String price;
     private int quantity;
-    private int imageResource;
+    private String imageUrl;  // 변수명 변경
 
-    public SelectedProduct(String title, String price, int quantity, int imageResource) {
+    public SelectedProduct(String title, String price, int quantity, String imageUrl) {
         this.title = title;
         this.price = price;
         this.quantity = quantity;
-        this.imageResource = imageResource;
+        this.imageUrl = imageUrl;  // Firebase Storage URL 저장
     }
 
     // Getters
@@ -29,11 +28,12 @@ public class SelectedProduct implements Serializable {
         return quantity;
     }
 
-    public int getImageResource() {
-        return imageResource;
+    public String getImageUrl() {  // 메소드명은 유지 (이미 이렇게 되어있네요)
+        return imageUrl;
     }
 
-    public void setQuantity(int Quantity) {
-        this.quantity = Quantity;
+    // Setter
+    public void setQuantity(int quantity) {  // 파라미터명 수정 (일관성)
+        this.quantity = quantity;
     }
 }

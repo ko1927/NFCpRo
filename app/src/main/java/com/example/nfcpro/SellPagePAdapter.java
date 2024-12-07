@@ -9,6 +9,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +55,12 @@ public class SellPagePAdapter extends RecyclerView.Adapter<SellPagePAdapter.Prod
         Product product = products.get(position);
         holder.productTitle.setText(product.getTitle());
         holder.productPrice.setText(product.getPrice());
-        holder.productImage.setImageResource(product.getImageUrl());
+//        holder.productImage.setImageResource(product.getImageUrl());
+        Glide.with(context)
+                .load(product.getImageUrl())
+                .placeholder(R.drawable.placehold) // 로딩 중 표시할 이미지
+                .error(R.drawable._060) // 로드 실패시 표시할 이미지
+                .into(holder.productImage);
 
         // Item click listener
         holder.itemView.setOnClickListener(v -> {
@@ -92,5 +100,37 @@ public class SellPagePAdapter extends RecyclerView.Adapter<SellPagePAdapter.Prod
     public void clearSelections() {
         selectionCount.clear();
         notifyDataSetChanged();
+    }
+
+
+
+    public interface OnItemLongClickListener {
+        void onItemLongClick(int position);
+    }
+
+    private OnItemLongClickListener onItemLongClickListener;
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.onItemLongClickListener = listener;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        // 기존 ViewHolder 코드에 아래 내용 추가
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            // 기존 초기화 코드
+
+            itemView.setOnLongClickListener(v -> {
+                if (onItemLongClickListener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        onItemLongClickListener.onItemLongClick(position);
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
     }
 }
