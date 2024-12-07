@@ -59,9 +59,17 @@ public class SellPagePAdapter extends RecyclerView.Adapter<SellPagePAdapter.Prod
         Glide.with(context)
                 .load(product.getImageUrl())
                 .placeholder(R.drawable.placehold) // 로딩 중 표시할 이미지
-                .error(R.drawable._060) // 로드 실패시 표시할 이미지
+                .error(R.drawable.placehold) // 로드 실패시 표시할 이미지
                 .into(holder.productImage);
-
+        
+        // 선택 개수 표시
+        int count = selectionCount.getOrDefault(position, 0);
+        if (count > 0) {
+            holder.selectionCountView.setVisibility(View.VISIBLE);
+            holder.selectionCountView.setText(""+String.valueOf(count)+"개");
+        } else {
+            holder.selectionCountView.setVisibility(View.GONE);
+        }
         // Item click listener
         holder.itemView.setOnClickListener(v -> {
             incrementSelection(position);
