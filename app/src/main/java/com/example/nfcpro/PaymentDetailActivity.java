@@ -90,24 +90,30 @@ public class PaymentDetailActivity extends AppCompatActivity {
 
                 for (DataSnapshot itemSnapshot : transactionSnapshot.getChildren()) {
                     try {
-                        // 직접 transaction_items에서 모든 정보 가져오기
                         String name = itemSnapshot.child("name").getValue(String.class);
                         Integer quantity = itemSnapshot.child("quantity").getValue(Integer.class);
                         Integer price = itemSnapshot.child("price").getValue(Integer.class);
-                        String productId = itemSnapshot.child("productId").getValue(String.class);
+                        String imageUrl = itemSnapshot.child("imageUrl").getValue(String.class);
 
                         if (name != null && quantity != null && price != null) {
                             String formattedPrice = String.format(Locale.KOREA, "%,d원", price);
 
+                            // imageUrl이 null이면 기본 이미지 URL 사용
+                            String finalImageUrl = (imageUrl != null && !imageUrl.isEmpty())
+                                    ? imageUrl
+                                    : "drawable/placehold";
+
+                            // PaymentProductData의 필드명과 일치하도록 생성
                             PaymentProductData productData = new PaymentProductData(
-                                    "drawable/_060", // 기본 이미지 URL
-                                    name,
-                                    quantity,
-                                    formattedPrice
+                                    finalImageUrl,    // productImage
+                                    name,            // productName
+                                    quantity,        // quantity
+                                    formattedPrice   // price
                             );
 
                             productList.add(productData);
-                            Log.d(TAG, "상품 추가: " + name + ", 수량: " + quantity + ", 가격: " + price);
+                            Log.d(TAG, "상품 추가: " + name + ", 수량: " + quantity +
+                                    ", 가격: " + formattedPrice + ", 이미지: " + finalImageUrl);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "상품 데이터 처리 실패: " + e.getMessage());

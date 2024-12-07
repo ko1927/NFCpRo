@@ -5,10 +5,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,10 +53,29 @@ public class PaymentProductAdapter extends RecyclerView.Adapter<PaymentProductAd
         }
 
         public void bind(PaymentProductData product) {
-            // 이미지 로딩 (실제 구현 시 Glide 등의 라이브러리 사용 권장)
-            if (product.getProductImage() != null) {
+            // 이미지 URL 처리
+            String imageUrl = product.getProductImage();
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                if (imageUrl.startsWith("drawable/")) {
+                    // drawable 리소스인 경우
+                    String resourceName = imageUrl.replace("drawable/", "");
+                    int resourceId = itemView.getContext().getResources()
+                            .getIdentifier(resourceName, "drawable",
+                                    itemView.getContext().getPackageName());
+                    imageProduct.setImageResource(resourceId);
+                } else {
+                    // Firebase Storage URL인 경우
+                    Glide.with(itemView.getContext())
+                            .load(imageUrl)
+                            .placeholder(R.drawable.placehold)
+                            .error(R.drawable.placehold)
+                            .into(imageProduct);
+                }
+            } else {
+                // 이미지 URL이 없는 경우 기본 이미지 표시
                 imageProduct.setImageResource(R.drawable.placehold);
             }
+
             textProductName.setText(product.getProductName());
             textQuantity.setText("개수 " + product.getQuantity());
             textPrice.setText(product.getPrice());

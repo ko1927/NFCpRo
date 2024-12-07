@@ -62,6 +62,7 @@ public class FirebasePaymentManager {
                 item.put("quantity", product.getQuantity());
                 item.put("price", price);
                 item.put("name", product.getTitle());
+                item.put("imageUrl", product.getImageUrl());  // 이미지 URL 추가
 
                 transactionItems.put(UUID.randomUUID().toString(), item);
             } catch (Exception e) {
