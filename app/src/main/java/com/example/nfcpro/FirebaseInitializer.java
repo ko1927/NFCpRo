@@ -1,204 +1,182 @@
-package com.example.nfcpro.util;
+package com.example.nfcpro;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class FirebaseInitializer {
+    private static final String DATABASE_URL = "https://nfctogo-f4da1-default-rtdb.firebaseio.com/";
+    private static final String ROOT_PATH = "nfcpro";
+    private DatabaseReference rootRef;
 
-    public static void initializeDatabase() {
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://nfctogo-f4da1-default-rtdb.firebaseio.com/");
-        DatabaseReference rootRef = database.getReference().child("nfcpro");
+    public FirebaseInitializer() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance(DATABASE_URL);
+        this.rootRef = database.getReference().child(ROOT_PATH);
+    }
 
-        // 부스 정보 초기화
+    public void initializeDatabase() {
+        initializeBooths();
+        initializeUsers();
+        initializeProducts();
+        initializeSampleTransaction();
+        initializeCardKeys();
+    }
+
+    private void initializeBooths() {
         DatabaseReference boothsRef = rootRef.child("booths");
 
-        Map<String, Object> booth1 = new HashMap<>();
-        booth1.put("id", "booth1");
-        booth1.put("name", "푸드트럭 1");
-        booth1.put("description", "수제버거와 감자튀김");
-        booth1.put("location", "A구역");
-        booth1.put("ownerUid", "owner1");
+        // ownerUid와 boothId를 연결하는 맵 생성
+        Map<String, Object> boothOwners = new HashMap<>();
+        boothOwners.put("owner1", "booth1");
+        boothOwners.put("owner2", "booth2");
+        rootRef.child("booth_owners").setValue(boothOwners);
 
-        Map<String, Object> booth2 = new HashMap<>();
-        booth2.put("id", "booth2");
-        booth2.put("name", "음료 부스");
-        booth2.put("description", "시원한 음료와 디저트");
-        booth2.put("location", "B구역");
-        booth2.put("ownerUid", "owner2");
+        // 부스 데이터 생성 및 저장
+        Map<String, Object> booth1 = createBooth("푸드트럭 1", "수제버거와 감자튀김", "A구역", hashPassword("booth1pass"));
+        Map<String, Object> booth2 = createBooth("음료 부스", "시원한 음료와 디저트", "B구역", hashPassword("booth2pass"));
 
         boothsRef.child("booth1").setValue(booth1);
         boothsRef.child("booth2").setValue(booth2);
+    }
 
-        // 사용자 데이터 초기화
+    private void initializeUsers() {
         DatabaseReference usersRef = rootRef.child("users");
 
-        Map<String, Object> user1 = new HashMap<>();
-        user1.put("uid", "user1");
-        user1.put("name", "홍길동");
-        user1.put("email", "hong@example.com");
-        user1.put("balance", 100000);
-        user1.put("cardKey", "a1b2c3d4e5f6g7h8");
-        user1.put("role", "customer"); // customer or booth_owner
+        Map<String, Object> customerData = createUser("홍길동", "hong@example.com", 100000, "customer");
+        Map<String, Object> ownerData = createUser("김사장", "kim@example.com", 0, "booth_owner");
 
-        Map<String, Object> boothOwner1 = new HashMap<>();
-        boothOwner1.put("uid", "owner1");
-        boothOwner1.put("name", "김사장");
-        boothOwner1.put("email", "kim@example.com");
-        boothOwner1.put("boothId", "booth1");
-        boothOwner1.put("role", "booth_owner");
+        usersRef.child("user1").setValue(customerData);
+        usersRef.child("owner1").setValue(ownerData);
 
-        usersRef.child("user1").setValue(user1);
-        usersRef.child("owner1").setValue(boothOwner1);
+        // 카드키-사용자 매핑
+        Map<String, String> cardUserMap = new HashMap<>();
+        cardUserMap.put("a1b2c3d4e5f6g7h8", "user1");
+        rootRef.child("card_user_map").setValue(cardUserMap);
+    }
 
-        // 상품 데이터 초기화
+    private void initializeProducts() {
         DatabaseReference productsRef = rootRef.child("products");
 
-        Map<String, Object> product1 = new HashMap<>();
-        product1.put("id", "prod1");
-        product1.put("boothId", "booth1");
-        product1.put("name", "클래식 버거");
-        product1.put("price", 8000);
-        product1.put("imageUrl", "drawable/_060");
-        product1.put("isAvailable", true);
+        // 상품 카테고리 정보
+        Map<String, Object> categories = new HashMap<>();
+        categories.put("food", "음식");
+        categories.put("beverage", "음료");
+        rootRef.child("product_categories").setValue(categories);
 
-        Map<String, Object> product2 = new HashMap<>();
-        product2.put("id", "prod2");
-        product2.put("boothId", "booth1");
-        product2.put("name", "치즈 버거");
-        product2.put("price", 9000);
-        product2.put("imageUrl", "drawable/_060ti");
-        product2.put("isAvailable", true);
+        // 상품 정보
+        Map<String, Object> product1 = createProduct("클래식 버거", 8000, "food", "drawable/_060", true, "booth1");
+        Map<String, Object> product2 = createProduct("치즈 버거", 9000, "food", "drawable/_060ti", true, "booth1");
 
-        productsRef.child("prod1").setValue(product1);
-        productsRef.child("prod2").setValue(product2);
+        String prod1Id = UUID.randomUUID().toString();
+        String prod2Id = UUID.randomUUID().toString();
 
-        // 거래 이력 초기화
-        DatabaseReference transactionsRef = rootRef.child("transactions");
-        long currentTime = System.currentTimeMillis();
+        productsRef.child(prod1Id).setValue(product1);
+        productsRef.child(prod2Id).setValue(product2);
 
-        // 부스별 거래 이력
-        DatabaseReference boothTransactionsRef = rootRef.child("booth_transactions");
+        // 부스-상품 매핑
+        Map<String, Object> boothProducts = new HashMap<>();
+        boothProducts.put(prod1Id, true);
+        boothProducts.put(prod2Id, true);
+        rootRef.child("booth_products").child("booth1").setValue(boothProducts);
+    }
 
-        // 샘플 거래 생성
+    private void initializeSampleTransaction() {
         String transactionId = UUID.randomUUID().toString();
+        DatabaseReference transactionsRef = rootRef.child("transactions");
 
-        Map<String, Object> transaction = new HashMap<>();
-        transaction.put("transactionId", transactionId);
-        transaction.put("userId", "user1");
-        transaction.put("boothId", "booth1");
-        transaction.put("amount", 17000);
-        transaction.put("timestamp", currentTime);
-        transaction.put("items", createSampleOrderItems());
-        transaction.put("status", "completed");
-
-        // 전체 거래 이력에 저장
+        // 거래 기본 정보
+        Map<String, Object> transaction = createTransaction("user1", "booth1", 8000);
         transactionsRef.child(transactionId).setValue(transaction);
 
-        // 부스별 거래 이력에 저장
-        boothTransactionsRef.child("booth1").child(transactionId).setValue(transaction);
+        // 거래-상품 매핑
+        Map<String, Object> transactionItems = new HashMap<>();
+        transactionItems.put("productId", "prod1");
+        transactionItems.put("quantity", 1);
+        transactionItems.put("price", 8000);
+        rootRef.child("transaction_items").child(transactionId).setValue(transactionItems);
 
-        // 사용자별 거래 이력에 저장
-        DatabaseReference userTransactionsRef = rootRef.child("user_transactions");
-        userTransactionsRef.child("user1").child(transactionId).setValue(transaction);
-
-        // 카드키 매핑 테이블
-        DatabaseReference cardKeysRef = rootRef.child("card_keys");
-
-        Map<String, Object> cardKey = new HashMap<>();
-        cardKey.put("userId", "user1");
-        cardKey.put("isActive", true);
-        cardKey.put("lastUsed", currentTime);
-
-        cardKeysRef.child("a1b2c3d4e5f6g7h8").setValue(cardKey);
+        // 인덱스 업데이트
+        updateTransactionIndexes(transactionId, "user1", "booth1");
     }
 
-    private static Map<String, Object> createSampleOrderItems() {
-        Map<String, Object> items = new HashMap<>();
+    private void initializeCardKeys() {
+        DatabaseReference cardStatusRef = rootRef.child("card_status");
+        cardStatusRef.child("a1b2c3d4e5f6g7h8").setValue(createCardStatus(true, System.currentTimeMillis()));
+    }
 
-        Map<String, Object> item1 = new HashMap<>();
-        item1.put("productId", "prod1");
-        item1.put("name", "클래식 버거");
-        item1.put("quantity", 1);
-        item1.put("price", 8000);
+    // Helper Methods
+    private Map<String, Object> createBooth(String name, String description, String location, String password) {
+        Map<String, Object> booth = new HashMap<>();
+        booth.put("name", name);
+        booth.put("description", description);
+        booth.put("location", location);
+        booth.put("password", password);
+        return booth;
+    }
 
-        Map<String, Object> item2 = new HashMap<>();
-        item2.put("productId", "prod2");
-        item2.put("name", "치즈 버거");
-        item2.put("quantity", 1);
-        item2.put("price", 9000);
+    private Map<String, Object> createUser(String name, String email, int balance, String role) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("name", name);
+        user.put("email", email);
+        if (balance > 0) user.put("balance", balance);
+        user.put("role", role);
+        return user;
+    }
 
-        items.put("item1", item1);
-        items.put("item2", item2);
+    private Map<String, Object> createProduct(String name, int price, String category,
+                                              String imageUrl, boolean isAvailable, String boothId) {
+        Map<String, Object> product = new HashMap<>();
+        product.put("name", name);
+        product.put("price", price);
+        product.put("category", category);
+        product.put("imageUrl", imageUrl);
+        product.put("isAvailable", isAvailable);
+        product.put("boothId", boothId);
+        return product;
+    }
 
-        return items;
+    private Map<String, Object> createTransaction(String userId, String boothId, int amount) {
+        Map<String, Object> transaction = new HashMap<>();
+        transaction.put("userId", userId);
+        transaction.put("boothId", boothId);
+        transaction.put("amount", amount);
+        transaction.put("timestamp", System.currentTimeMillis());
+        transaction.put("status", "completed");
+        return transaction;
+    }
+
+    private Map<String, Object> createCardStatus(boolean isActive, long lastUsed) {
+        Map<String, Object> status = new HashMap<>();
+        status.put("isActive", isActive);
+        status.put("lastUsed", lastUsed);
+        return status;
+    }
+
+    private void updateTransactionIndexes(String transactionId, String userId, String boothId) {
+        Map<String, Object> indexUpdates = new HashMap<>();
+        indexUpdates.put("/user_transactions/" + userId + "/" + transactionId, true);
+        indexUpdates.put("/booth_transactions/" + boothId + "/" + transactionId, true);
+        rootRef.updateChildren(indexUpdates);
+    }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
-
-/*
-데이터베이스 구조:
-
-/nfcpro
-    /booths
-        /booth1
-            id: "booth1"
-            name: "푸드트럭 1"
-            description: "수제버거와 감자튀김"
-            location: "A구역"
-            ownerUid: "owner1"
-
-    /users
-        /user1
-            uid: "user1"
-            name: "홍길동"
-            balance: 100000
-            cardKey: "a1b2c3d4e5f6g7h8"
-            role: "customer"
-        /owner1
-            uid: "owner1"
-            name: "김사장"
-            boothId: "booth1"
-            role: "booth_owner"
-
-    /products
-        /prod1
-            id: "prod1"
-            boothId: "booth1"
-            name: "클래식 버거"
-            price: 8000
-            imageUrl: "drawable/_060"
-            isAvailable: true
-
-    /transactions
-        /{transactionId}
-            transactionId: "uuid"
-            userId: "user1"
-            boothId: "booth1"
-            amount: 17000
-            timestamp: 1234567890
-            items: {
-                item1: {
-                    productId: "prod1"
-                    name: "클래식 버거"
-                    quantity: 1
-                    price: 8000
-                }
-            }
-            status: "completed"
-
-    /booth_transactions
-        /booth1
-            /{transactionId}: {...}
-
-    /user_transactions
-        /user1
-            /{transactionId}: {...}
-
-    /card_keys
-        /a1b2c3d4e5f6g7h8
-            userId: "user1"
-            isActive: true
-            lastUsed: 1234567890
-*/
