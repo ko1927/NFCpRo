@@ -15,8 +15,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // 초기화 코드 (한 번만 실행하고 주석처리할 것)
-        FirebaseInitializer initializer = new FirebaseInitializer();
-        initializer.initializeDatabase();
+//        FirebaseInitializer initializer = new FirebaseInitializer();
+//        initializer.initializeDatabase();
 
         new Handler().postDelayed(new Runnable() {
             @Override
