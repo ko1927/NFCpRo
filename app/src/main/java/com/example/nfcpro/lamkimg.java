@@ -67,7 +67,6 @@ public class lamkimg extends Fragment {
     }
 
     private void loadBoothData() {
-        // First, load booth names
         databaseRef.child("booths").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -90,29 +89,34 @@ public class lamkimg extends Fragment {
         databaseRef.child("rank").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<RankingItem> rankingItems = new ArrayList<>();
                 List<BoothRanking> boothRankings = new ArrayList<>();
 
+                // 모든 부스 데이터를 BoothRanking 객체로 변환
                 for (DataSnapshot boothSnapshot : dataSnapshot.getChildren()) {
                     String boothId = boothSnapshot.getKey();
                     Long rankValue = boothSnapshot.getValue(Long.class);
                     String boothName = boothNames.getOrDefault(boothId, boothId);
 
                     if (rankValue != null) {
-                        BoothRanking ranking = new BoothRanking(boothId, boothName, rankValue);
-                        boothRankings.add(ranking);
-                        rankingItems.add(new RankingItem(
-                                rankingItems.size() + 1,
-                                boothName,
-                                String.format("%,d원", rankValue)
-                        ));
+                        boothRankings.add(new BoothRanking(boothId, boothName, rankValue));
                     }
                 }
 
-                // Sort by rank value
+                // 수익 기준으로 정렬
                 Collections.sort(boothRankings, (a, b) -> b.rankValue.compareTo(a.rankValue));
 
-                // Update UI
+                // 정렬된 데이터로 RankingItem 리스트 생성
+                List<RankingItem> rankingItems = new ArrayList<>();
+                for (int i = 0; i < boothRankings.size(); i++) {
+                    BoothRanking ranking = boothRankings.get(i);
+                    rankingItems.add(new RankingItem(
+                            i + 1,  // 1부터 시작하는 순위
+                            ranking.boothName,
+                            String.format("%,d원", ranking.rankValue)
+                    ));
+                }
+
+                // UI 업데이트
                 updateTopThree(boothRankings);
                 adapter.setRankingList(rankingItems);
             }
