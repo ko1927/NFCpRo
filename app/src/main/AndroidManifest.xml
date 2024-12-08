@@ -74,7 +74,6 @@
 
         <activity android:name=".Login" />
         <activity android:name=".LoginAdmin" />
-        <activity android:name=".LoginUser" />
     </application>
 
 </manifest>

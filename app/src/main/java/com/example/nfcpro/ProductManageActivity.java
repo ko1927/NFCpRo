@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.bumptech.glide.Glide;
 import com.example.nfcpro.SessionManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
@@ -119,7 +120,14 @@ public class ProductManageActivity extends AppCompatActivity {
                         stockInput.setText(String.valueOf(snapshot.child("stock").getValue(Long.class)));
 
                         String imageUrl = snapshot.child("imageUrl").getValue(String.class);
-                        // 이미지 로딩 로직 추가
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            // Glide를 사용하여 이미지 로딩
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.placehold)
+                                    .error(R.drawable.placehold)
+                                    .into(productImage);
+                        }
                     }
                 })
                 .addOnFailureListener(e -> showError("상품 정보를 불러오는데 실패했습니다"));
@@ -143,6 +151,7 @@ public class ProductManageActivity extends AppCompatActivity {
         productData.put("isAvailable", true);
 
         if (selectedImageUri != null) {
+            // 새 이미지가 선택된 경우
             StorageReference imageRef = storageRef.child(id + ".jpg");
             imageRef.putFile(selectedImageUri)
                     .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl()
@@ -151,7 +160,19 @@ public class ProductManageActivity extends AppCompatActivity {
                                 saveProductToDatabase(id, productData, isNew);
                             }))
                     .addOnFailureListener(e -> showError("이미지 업로드에 실패했습니다"));
+        } else if (isEditMode) {
+            // 수정 모드이고 새 이미지가 선택되지 않은 경우, 기존 이미지 URL 가져오기
+            databaseRef.child("products").child(id).child("imageUrl").get()
+                    .addOnSuccessListener(snapshot -> {
+                        String existingImageUrl = snapshot.getValue(String.class);
+                        if (existingImageUrl != null) {
+                            productData.put("imageUrl", existingImageUrl);
+                        }
+                        saveProductToDatabase(id, productData, isNew);
+                    })
+                    .addOnFailureListener(e -> saveProductToDatabase(id, productData, isNew));
         } else {
+            // 새 상품이고 이미지가 선택되지 않은 경우
             saveProductToDatabase(id, productData, isNew);
         }
     }

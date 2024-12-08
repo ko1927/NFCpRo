@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.example.nfcpro.SessionManager;
 import com.google.firebase.database.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +27,7 @@ public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongCli
     private DatabaseReference databaseRef;
     private String boothId;
     private FloatingActionButton addProductButton;
+    private Button priceButton;
     private ValueEventListener productsListener;
     private boolean isDataLoaded = false;
 
@@ -62,6 +62,7 @@ public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongCli
 
         adapter = new SellPagePAdapter(getActivity(), products);
         adapter.setOnItemLongClickListener(this);
+        adapter.setOnSelectionChangedListener(this::updatePriceButton);
         recyclerView2.setAdapter(adapter);
 
         addProductButton = view.findViewById(R.id.addProductButton);
@@ -72,14 +73,40 @@ public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongCli
             }
         });
 
-        Button priceButton = view.findViewById(R.id.priceButton);
+        priceButton = view.findViewById(R.id.priceButton);
         priceButton.setOnClickListener(v -> processCheckout());
+        updatePriceButton();
 
         if (!isDataLoaded) {
             loadProducts();
         }
 
         return view;
+    }
+
+    private void updatePriceButton() {
+        if (!isAdded() || priceButton == null) return;
+
+        Map<Integer, Integer> selections = adapter.getAllSelections();
+        int totalAmount = 0;
+
+        for (Map.Entry<Integer, Integer> entry : selections.entrySet()) {
+            int position = entry.getKey();
+            int quantity = entry.getValue();
+
+            if (position < products.size() && quantity > 0) {
+                Product product = products.get(position);
+                String priceString = product.getPrice().replaceAll("[^0-9]", "");
+                int price = Integer.parseInt(priceString);
+                totalAmount += price * quantity;
+            }
+        }
+
+        if (totalAmount > 0) {
+            priceButton.setText(String.format("%,d원 결제하기", totalAmount));
+        } else {
+            priceButton.setText("결제하기");
+        }
     }
 
     private void loadProducts() {
@@ -92,7 +119,7 @@ public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongCli
         productsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot boothProductsSnapshot) {
-                if (!isAdded()) return;  // Fragment가 분리되었는지 확인
+                if (!isAdded()) return;
 
                 products.clear();
                 productIds.clear();
@@ -133,11 +160,12 @@ public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongCli
                                 String imageUrl = productSnapshot.child("imageUrl").getValue(String.class);
 
                                 if (getContext() != null) {
-                                    products.add(new Product(
+                                    Product newProduct = new Product(
                                             name,
                                             price + "원",
-                                            imageUrl  // URL 직접 사용
-                                    ));
+                                            imageUrl
+                                    );
+                                    products.add(newProduct);
                                     productIds.add(productId);
                                     adapter.notifyDataSetChanged();
                                 }
@@ -158,37 +186,9 @@ public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongCli
                 });
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (productsListener != null && boothId != null) {
-            databaseRef.child("booth_products").child(boothId).removeEventListener(productsListener);
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (isAdded()) {
-            loadProducts();
-        }
-    }
-
-    @Override
-    public void onItemLongClick(int position) {
-        if (!isAdded() || getActivity() == null) return;
-
-        if (position < productIds.size()) {
-            String productId = productIds.get(position);
-            Intent intent = new Intent(getActivity(), ProductManageActivity.class);
-            intent.putExtra("PRODUCT_ID", productId);
-            startActivity(intent);
-        }
-    }
-
-    // 나머지 메소드들은 isAdded() 체크 추가...
     private void processCheckout() {
         if (!isAdded()) return;
+
         Map<Integer, Integer> selections = adapter.getAllSelections();
         ArrayList<SelectedProduct> selectedProducts = new ArrayList<>();
         int totalAmount = 0;
@@ -197,7 +197,7 @@ public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongCli
             int position = entry.getKey();
             int quantity = entry.getValue();
 
-            if (quantity > 0) {
+            if (quantity > 0 && position < products.size()) {
                 Product product = products.get(position);
                 String priceString = product.getPrice().replaceAll("[^0-9]", "");
                 int price = Integer.parseInt(priceString);
@@ -222,6 +222,38 @@ public class sellpage extends Fragment implements SellPagePAdapter.OnItemLongCli
         intent.putExtra("totalAmount", totalAmount);
         intent.putExtra("BOOTH_ID", boothId);
         startActivity(intent);
+    }
+
+    @Override
+    public void onItemLongClick(int position) {
+        if (!isAdded() || getActivity() == null) return;
+
+        if (position < productIds.size()) {
+            String productId = productIds.get(position);
+            Intent intent = new Intent(getActivity(), ProductManageActivity.class);
+            intent.putExtra("PRODUCT_ID", productId);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (productsListener != null && boothId != null) {
+            databaseRef.child("booth_products").child(boothId).removeEventListener(productsListener);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isAdded()) {
+            loadProducts();
+            if (adapter != null) {
+                adapter.clearAllSelections();
+                updatePriceButton();
+            }
+        }
     }
 
     private void redirectToLogin() {
