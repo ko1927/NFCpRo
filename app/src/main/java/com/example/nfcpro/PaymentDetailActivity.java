@@ -92,7 +92,10 @@ public class PaymentDetailActivity extends AppCompatActivity {
                     try {
                         String name = itemSnapshot.child("name").getValue(String.class);
                         Integer quantity = itemSnapshot.child("quantity").getValue(Integer.class);
-                        Integer price = itemSnapshot.child("price").getValue(Integer.class);
+                        String priceStr = itemSnapshot.child("price").getValue(String.class);
+                        // "원" 문자 제거하고 숫자만 추출
+                        String numericPrice = priceStr.replaceAll("[^0-9]", "");
+                        Integer price = Integer.parseInt(numericPrice);
                         String imageUrl = itemSnapshot.child("imageUrl").getValue(String.class);
 
                         if (name != null && quantity != null && price != null) {

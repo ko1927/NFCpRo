@@ -283,7 +283,7 @@ public class NFCWriterActivity extends AppCompatActivity {
 
     private void writeCardIdToDatabase(String cardId) {
         // 카드 ID 생성 (실제 카드 ID 사용)
-        String dbCardId = userId + "_" + cardId;
+        String dbCardId = cardId;
 
         // Firebase에 카드 정보 저장
         Map<String, Object> updates = new HashMap<>();
