@@ -6,7 +6,7 @@
         android:title="판매 품목" />
     <item
         android:id="@+id/nav_payment"
-        android:icon="@android:drawable/ic_menu_upload"
+        android:icon="@android:drawable/ic_dialog_alert"
         android:title="결제 내역" />
     <item
         android:id="@+id/nav_sales_status"

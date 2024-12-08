@@ -151,7 +151,7 @@ public class PaymentHandler implements NfcAdapter.ReaderCallback {
         dialogMessage = dialog.findViewById(R.id.dialogMessage);
         dialogButton = dialog.findViewById(R.id.dialogButton);
 
-        dialogImage.setImageResource(R.drawable._060);
+        dialogImage.setImageResource(R.drawable.card);
         dialogTitle.setText("카드를 태그해주세요");
         dialogMessage.setText("휴대폰에 카드를 가까이 대주세요");
         dialogButton.setText("취소");
@@ -164,7 +164,7 @@ public class PaymentHandler implements NfcAdapter.ReaderCallback {
     }
 
     private void processFirebasePayment(String userId) {
-        dialogImage.setImageResource(R.drawable._060ti);
+        dialogImage.setImageResource(R.drawable.chevronright);
         dialogTitle.setText("결제 처리 중");
         dialogMessage.setText("잠시만 기다려주세요...");
         dialogButton.setEnabled(false);
@@ -189,7 +189,7 @@ public class PaymentHandler implements NfcAdapter.ReaderCallback {
     }
 
     private void showPaymentCompleteDialog() {
-        dialogImage.setImageResource(R.drawable._060);
+        dialogImage.setImageResource(R.drawable.check);
         dialogTitle.setText("결제 완료");
         dialogMessage.setText("결제가 성공적으로 완료되었습니다");
         dialogButton.setText("확인");
@@ -201,7 +201,7 @@ public class PaymentHandler implements NfcAdapter.ReaderCallback {
     }
 
     private void showPaymentFailDialog(String error) {
-        dialogImage.setImageResource(R.drawable._060);
+        dialogImage.setImageResource(R.drawable.multiply);
         dialogTitle.setText("결제 실패");
         dialogMessage.setText(error);
         dialogButton.setText("확인");

@@ -1,38 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Welcome!" />
+        android:text="Welcome!"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="32dp" />
 
-    <EditText
-        android:id="@+id/ADMIN_NAME"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="center"
-        android:hint="id"
-        android:inputType="text" />
+        android:layout_marginBottom="16dp"
+        app:boxStrokeColor="#4CAF50"
+        app:hintTextColor="#4CAF50">
 
-    <EditText
-        android:id="@+id/LOGIN_CODE"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/ADMIN_NAME"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ID"
+            android:inputType="text"
+            android:padding="16dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="center"
-        android:hint="code"
-        android:inputType="textPassword" />
+        android:layout_marginBottom="24dp"
+        app:boxStrokeColor="#4CAF50"
+        app:hintTextColor="#4CAF50"
+        app:passwordToggleEnabled="true">
 
-    <Button
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/LOGIN_CODE"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Code"
+            android:inputType="textPassword"
+            android:padding="16dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/LOGIN_BUTTON"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="LOGIN" />
+        android:layout_width="350dp"
+        android:layout_height="56dp"
+        android:text="LOGIN"
+        android:textSize="16sp"
+        app:cornerRadius="8dp"
+        android:backgroundTint="#4CAF50" />
+
 </LinearLayout>
