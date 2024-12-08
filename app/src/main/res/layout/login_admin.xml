@@ -18,8 +18,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:gravity="center"
-        android:inputType="text"
-        android:text="Name" />
+        android:hint="id"
+        android:inputType="text" />
 
     <EditText
         android:id="@+id/LOGIN_CODE"
@@ -27,6 +27,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:gravity="center"
+        android:hint="code"
         android:inputType="textPassword" />
 
     <Button

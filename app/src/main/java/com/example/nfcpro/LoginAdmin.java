@@ -95,7 +95,7 @@ public class LoginAdmin extends AppCompatActivity {
                         if (snapshot.exists()) {
                             String storedHash = snapshot.getValue(String.class);
                             String inputHash = hashPassword(password);
-                            admin_code.setText(inputHash);
+//                            admin_code.setText(inputHash);
 
                             if (inputHash != null && inputHash.equals(storedHash)) {
                                 loginSuccess(boothId, adminId);

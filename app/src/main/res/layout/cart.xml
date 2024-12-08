@@ -52,8 +52,9 @@
                     android:id="@+id/decreaseButton"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:background="@drawable/_060"
-                    android:src="@drawable/_060" />
+                    android:background="@drawable/left"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/left" />
 
                 <TextView
                     android:id="@+id/quantityText"
@@ -68,8 +69,8 @@
                     android:id="@+id/increaseButton"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:background="@drawable/_060"
-                    android:src="@drawable/_060" />
+                    android:background="@drawable/chevronright"
+                    android:src="@drawable/chevronright" />
             </LinearLayout>
         </LinearLayout>
 
@@ -79,6 +80,7 @@
             android:layout_height="24dp"
             android:layout_gravity="top"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/_060" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/close" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -14,7 +14,8 @@
             android:layout_width="61dp"
             android:layout_height="33dp"
             android:background="?attr/selectableItemBackground"
-            android:src="@drawable/_060" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/left" />
 
         <TextView
             android:layout_width="wrap_content"
