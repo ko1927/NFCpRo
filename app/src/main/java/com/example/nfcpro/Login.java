@@ -28,7 +28,8 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 //                Intent intent = new Intent(Login.this,LoginUser.class);
-                Intent intent = new Intent(Login.this,UserLoginPage.class);
+                Intent intent = new Intent(Login.this,NFCWriterActivity.class);
+                intent.putExtra("userId", "user1");
                 startActivity(intent);
             }
         });
